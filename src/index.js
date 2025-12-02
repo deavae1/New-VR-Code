@@ -1,5 +1,4 @@
 
-
 import {
   AssetType,
   Mesh,
@@ -26,6 +25,7 @@ import {
 
 
 import { PanelSystem } from './panel.js';
+import * as THREE from 'three';
 
 
 const assets = {
@@ -34,13 +34,28 @@ const assets = {
     type: AssetType.Audio,
     priority: 'background'
   },
-  lamp: {
-    url:'/gltf/lamp/scene.gltf',
+  keyroom1: {
+    url: '/gltf/door_keys/scene.gltf',
     type: AssetType.GLTF,
     priority: 'critical',
   },
-  keyroom1: {
-    url: '/gltf/door_keys/scene.gltf',
+  body_bag: {
+    url: '/gltf/body_bag01/scene.gltf',
+    type: AssetType.GLTF,
+    priority: 'critical',
+  },
+  bloodyknife: {
+    url: '/gltf/bloody_knife/scene.gltf',
+    type: AssetType.GLTF,
+    priority: 'critical',
+  },
+  highheel: {
+    url: '/gltf/high-heeled_shoes/scene.gltf',
+    type: AssetType.GLTF,
+    priority: 'critical',
+  },
+  frontdoor: {
+    url: '/gltf/office_door_open_40_degrees/scene.gltf',
     type: AssetType.GLTF,
     priority: 'critical',
   }
@@ -55,10 +70,11 @@ World.create(document.getElementById('scene-container'), {
     features: { handTracking: true, layers: false } 
   },
   features: { locomotion: { useWorker: true }, grabbing: true, physics: true},
-  level: '/glxf/2/Composition.glxf' 
+  level: '/glxf/2/Composition.glxf'
 }).then((world) => {
   const { camera } = world;
-  
+
+ 
  // Create a green sphere
   const sphereGeometry = new SphereGeometry(0.25, 32, 32);
   const greenMaterial = new MeshStandardMaterial({ color: "red" });
@@ -118,15 +134,7 @@ World.create(document.getElementById('scene-container'), {
 const room1= createRoom(world,7,10,3);
 room1.object3D.position.set(-13,0,-5)
 
-//ROOM#1 Moveable lamp-to find key
-const cluelamp = AssetManager.getGLTF('lamp').scene;
-cluelamp.scale.set(0.007,0.007,0.007);
-cluelamp.position.set(-14,1.4,-6)
-const cluelampEntity = world.createTransformEntity(cluelamp);
-cluelampEntity.addComponent(PhysicsShape, { shape: PhysicsShapeType.Auto});
-cluelampEntity.addComponent(PhysicsBody, { state: PhysicsState.Kinematic});
-cluelampEntity.addComponent(Interactable);
-cluelampEntity.addComponent(OneHandGrabbable);
+
 
 
 //ROOM#1 Moveable key-from lamp
@@ -144,8 +152,17 @@ keyEntity.addComponent(PhysicsBody, {
   restitution: 0.3
 });
 
+//bodybag
+const bodybag = AssetManager.getGLTF('body_bag').scene;
+bodybag.scale.set(1,1,1);
+bodybag.position.set(-14,0.01,-4)
+const bodybagEntity = world.createTransformEntity(bodybag);
 
-  
+
+
+
+
+
   world.registerSystem(PhysicsSystem).registerComponent(PhysicsBody).registerComponent(PhysicsShape);
   
 
