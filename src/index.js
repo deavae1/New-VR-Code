@@ -94,9 +94,10 @@ World.create(document.getElementById('scene-container'), {
 
  //room1
  function createRoom(world, width = 10, depth = 10, height = 8, color = "pink",doorWidth = 1.5, doorHeight = 3,
-  doorPositionX = 1 )
+  doorPositionX = 1,)
   {
   const roomRoot = world.createTransformEntity();
+  
   const wallmat= new MeshStandardMaterial({ color: "pink", side: 2 });
   const floorMat= new MeshStandardMaterial({ color: "tan", side: 2 });
   const ceilingMat= new MeshStandardMaterial({ color: "white", side: 2 });
@@ -178,8 +179,78 @@ function createHallwayWalls(world, length = 10, height = 3, spacing = 2, color =
 const hallway = createHallwayWalls(world, 8, 3, 2, "pink");
 hallway.object3D.position.set(-13, 0, -12); 
 
+//room2
+function createRoomLeftDoor(world, width = 10, depth = 10, height = 8, color = "pink",
+  doorWidth = 1.5, doorHeight = 3, doorPositionZ = 1) // door position along Z axis
+{
+  const roomRoot = world.createTransformEntity();
 
-//ROOM#1 Moveable key-from lamp
+  const wallmat = new MeshStandardMaterial({ color, side: 2 });
+  const floorMat = new MeshStandardMaterial({ color: "tan", side: 2 });
+  const ceilingMat = new MeshStandardMaterial({ color: "white", side: 2 });
+
+  // Back Wall
+  const back = new Mesh(new PlaneGeometry(width, height), wallmat);
+  back.position.set(0, height / 2, -depth / 2);
+  roomRoot.object3D.add(back);
+
+  // Front Wall
+  const front = new Mesh(new PlaneGeometry(width, height), wallmat);
+  front.position.set(0, height / 2, depth / 2);
+  front.rotation.y = Math.PI;
+  roomRoot.object3D.add(front);
+
+  // Left Wall with door cutout
+const halfDepth = depth / 2;
+
+// Left wall segments around the door
+const frontSegmentLength = halfDepth - (doorPositionZ + doorWidth / 2);
+const backSegmentLength = halfDepth - (doorPositionZ - doorWidth / 2);
+
+// FRONT segment (toward front of room)
+if (frontSegmentLength > 0) {
+  const leftFront = new Mesh(new PlaneGeometry(frontSegmentLength, height), wallmat);
+  leftFront.position.set(-width / 2, height / 2, doorPositionZ + doorWidth / 2 + frontSegmentLength / 2);
+  leftFront.rotation.y = Math.PI / 2;
+  roomRoot.object3D.add(leftFront);
+}
+// BACK segment (toward back of room)
+if (backSegmentLength > 0) {
+  const leftBack = new Mesh(new PlaneGeometry(backSegmentLength, height), wallmat);
+  leftBack.position.set(-width / 2, height / 2, doorPositionZ - doorWidth / 2 - backSegmentLength / 2);
+  leftBack.rotation.y = Math.PI / 2;
+  roomRoot.object3D.add(leftBack);
+}
+// TOP segment (above door)
+if (height > doorHeight) {
+  const topHeight = height - doorHeight;
+  const leftDoorTop = new Mesh(new PlaneGeometry(doorWidth, topHeight), wallmat);
+  leftDoorTop.position.set(-width / 2, doorHeight + topHeight / 2, doorPositionZ);
+  leftDoorTop.rotation.y = Math.PI / 2;
+  roomRoot.object3D.add(leftDoorTop);
+}
+  // Right Wall
+  const right = new Mesh(new PlaneGeometry(depth, height), wallmat);
+  right.position.set(width / 2, height / 2, 0);
+  right.rotation.y = -Math.PI / 2;
+  roomRoot.object3D.add(right);
+  // Floor
+  const floor = new Mesh(new PlaneGeometry(width, depth), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set(0, 0.002, 0);
+  roomRoot.object3D.add(floor);
+  // Ceiling
+  const ceiling = new Mesh(new PlaneGeometry(width, depth), ceilingMat);
+  ceiling.rotation.x = Math.PI / 2;
+  ceiling.position.set(0, height, 0);
+  roomRoot.object3D.add(ceiling);
+  return roomRoot;
+}
+const room2 = createRoomLeftDoor(world, 7, 10, 3);
+room2.object3D.position.set(7, 0, -10); 
+
+
+//clue key
 const cluekey1 = AssetManager.getGLTF('keyroom1').scene;
 cluekey1.scale.set(.5,.5,.5);
 cluekey1.position.set(-8,2.5,-6)
