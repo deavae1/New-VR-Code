@@ -93,7 +93,9 @@ World.create(document.getElementById('scene-container'), {
   floorEntity.addComponent(PhysicsBody, { state: PhysicsState.Static });
 
  //room1
- function createRoom(world, width = 10, depth = 10, height = 3, color = "pink") {
+ function createRoom(world, width = 10, depth = 10, height = 8, color = "pink",doorWidth = 1.5, doorHeight = 3,
+  doorPositionX = 1 )
+  {
   const roomRoot = world.createTransformEntity();
   const wallmat= new MeshStandardMaterial({ color: "pink", side: 2 });
   const floorMat= new MeshStandardMaterial({ color: "tan", side: 2 });
@@ -102,13 +104,33 @@ World.create(document.getElementById('scene-container'), {
   const back = new Mesh(new PlaneGeometry(width, height), wallmat);
   back.position.set(0, height / 2, -depth / 2);
   roomRoot.object3D.add(back);
-  // no rotation (faces forward)
-  // Front Wall (behind player)
-  const front = new Mesh(new PlaneGeometry(width, height), wallmat);
-  front.position.set(0, height / 2, depth / 2);
-  front.rotation.y = Math.PI; // face inward
-  roomRoot.object3D.add(front);
-  // Left Wall
+   // FRONT WALL WITH DOOR OPENING (3 pieces: left, right, top)
+  const halfWall = width / 2;
+  const leftWidth = (width / 2) + (doorPositionX - doorWidth / 2);
+  const rightWidth = (width / 2) - (doorPositionX + doorWidth / 2);
+  // LEFT WALL SECTION
+  if (leftWidth > 0) {
+    const frontLeft = new Mesh(new PlaneGeometry(leftWidth, height), wallmat);
+    frontLeft.position.set(-halfWall + leftWidth / 2, height / 2, depth / 2);
+    frontLeft.rotation.y = Math.PI;
+    roomRoot.object3D.add(frontLeft);
+  }
+  // RIGHT WALL SECTION
+  if (rightWidth > 0) {
+    const frontRight = new Mesh(new PlaneGeometry(rightWidth, height), wallmat);
+    frontRight.position.set(halfWall - rightWidth / 2, height / 2, depth / 2);
+    frontRight.rotation.y = Math.PI;
+    roomRoot.object3D.add(frontRight);
+  }
+  // TOP SECTION (above door)
+  if (height > doorHeight) {
+    const topHeight = height - doorHeight;
+    const frontTop = new Mesh(new PlaneGeometry(doorWidth, topHeight), wallmat);
+    frontTop.position.set(doorPositionX, doorHeight + topHeight / 2, depth / 2);
+    frontTop.rotation.y = Math.PI;
+    roomRoot.object3D.add(frontTop);
+  }
+  // Left Walls
   const left = new Mesh(new PlaneGeometry(depth, height), wallmat);
   left.position.set(-width / 2, height / 2, 0);
   left.rotation.y = Math.PI / 2;
@@ -134,7 +156,27 @@ World.create(document.getElementById('scene-container'), {
 const room1= createRoom(world,7,10,3);
 room1.object3D.position.set(-13,0,-5)
 
-
+//hallway
+function createHallwayWalls(world, length = 10, height = 3, spacing = 2, color = "pink") {
+  const hallwayRoot = world.createTransformEntity();
+  const wallMat = new MeshStandardMaterial({ color, side: 2 });
+  // Front wall (positive Z)
+  const frontWall = new Mesh(new PlaneGeometry(length, height), wallMat);
+  frontWall.position.set(0, height / 2, spacing / 2);
+  frontWall.position.x += 7.4
+  frontWall.position.z += 4
+  hallwayRoot.object3D.add(frontWall);
+  // Back wall (negative Z)
+  const backWall = new Mesh(new PlaneGeometry(length, height), wallMat);
+  backWall.position.set(0, height / 2, -spacing / 2);
+  backWall.rotation.y = Math.PI; // flip to face inward
+  backWall.position.z += 4
+  backWall.position.x += 7.4
+  hallwayRoot.object3D.add(backWall);
+  return hallwayRoot;
+}
+const hallway = createHallwayWalls(world, 8, 3, 2, "pink");
+hallway.object3D.position.set(-13, 0, -12); 
 
 
 //ROOM#1 Moveable key-from lamp
@@ -165,6 +207,12 @@ front_door.position.set(-12,0.01,0)
 front_door.rotation.y = -Math.PI/2;
 const frontdoorEntity = world.createTransformEntity(front_door);
 
+//knife(clue)
+const knife = AssetManager.getGLTF('bloodyknife').scene;
+knife.scale.set(0.001,0.001,0.001);
+knife.position.set(-7,0.01,0)
+knife.rotation.x = -Math.PI / 2;
+const knifeEntity = world.createTransformEntity(knife);
 
 
 
