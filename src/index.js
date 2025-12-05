@@ -158,6 +158,13 @@ bodybag.scale.set(1,1,1);
 bodybag.position.set(-14,0.01,-4)
 const bodybagEntity = world.createTransformEntity(bodybag);
 
+//front door
+const front_door = AssetManager.getGLTF('frontdoor').scene;
+front_door.scale.set(0.015,0.015,0.015);
+front_door.position.set(-12,0.01,0)
+front_door.rotation.y = -Math.PI/2;
+const frontdoorEntity = world.createTransformEntity(front_door);
+
 
 
 
